@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if session.logged_in %}
+
+<div class="container">
+    <div class="col-md-12 mx-auto">
+        {% if n_rated_movies < 10 %} 
+            <h4 class="section-text">Rate More</h4>
+            <p>Rate 10 movies to enable personalized recommendations, you have rate {{n_rated_movies}}</p>
+        {% else %}
+            <h4 class="section-text">Recommended for you</h4>
+        {% endif %}
+            <!-- <h4 class="section-text">Top picks for you</h4> -->
+            <div id="toppickCarousel" class="carousel slide" data-ride="carousel" data-interval="0">
+                <!-- Carousel indicators -->
+                <!-- <ol class="carousel-indicators">
+                        <li data-target="#trendingCarousel" data-slide-to="0" class="active"></li>
+                        <li data-target="#trendingCarousel" data-slide-to="1"></li>
+                        <li data-target="#trendingCarousel" data-slide-to="2"></li>
+                    </ol> -->
+                <!-- Wrapper for carousel items -->
+                <div class="carousel-inner">
+                    {% for i in range(0,9,4) %}
+                    <div class="carousel-item {{'active' if i == 0}}">
+                        <div class="row">
+                            {% for j in range(4) %}
+                            <div class="col-sm-3">
+                                <div class="thumb-wrapper">
+                                    <a href="/movies/{{ top_picks_or_random_movies[i+j]['movie_id']}}">
+                                        <div class="img-box">
+                                            <img src="//image.tmdb.org/t/p/original/{{top_picks_or_random_movies[i+j]['poster_path']}}"
+                                                class="img-fluid" alt="">
+                                        </div>
+                                    </a>
+                                    <div class="thumb-content">
+                                        <a href="/movies/{{ top_picks_or_random_movies[i+j]['movie_id']}}">
+                                            <div class="movie-title">
+                                                <h4 title="{{ top_picks_or_random_movies[i+j]['title'] }}">
+                                                    {{ top_picks_or_random_movies[i+j]['title']}}
+                                                </h4>
+                                            </div>
+                                        </a>
+                                        <!-- <i class="fas fa-star"></i> 5 -->
+                                    </div>
+                                    <!-- <div class="ribben">
+                                            <p>{{i+j+1}}</p>
+                                        </div> -->
+
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- Carousel controls -->
+                <a class="carousel-control-prev" href="#toppickCarousel" data-slide="prev">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                <a class="carousel-control-next" href="#toppickCarousel" data-slide="next">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+    </div>
+
+</div>
+
+{% endif %}
+
+<!-- Top Rated Movie Section -->
+<div class="container">
+    <div class="col-md-12 mx-auto">
+        <h4 class="section-text">Top Rated</h4>
+        <div id="topRatedCarousel" class="carousel slide" data-ride="carousel" data-interval="0">
+            <!-- Carousel indicators -->
+            <!-- <ol class="carousel-indicators">
+                    <li data-target="#trendingCarousel" data-slide-to="0" class="active"></li>
+                    <li data-target="#trendingCarousel" data-slide-to="1"></li>
+                    <li data-target="#trendingCarousel" data-slide-to="2"></li>
+                </ol> -->
+            <!-- Wrapper for carousel items -->
+            <div class="carousel-inner">
+                {% for i in range(0,9,4) %}
+                <div class="carousel-item {{'active' if i == 0}}">
+                    <div class="row">
+                        {% for j in range(4) %}
+                        <div class="col-sm-3">
+                            <div class="thumb-wrapper">
+                                <a href="/movies/{{ top_rated_movies[i+j]['movie_id']}}">
+                                    <div class="img-box">
+                                        <img src="//image.tmdb.org/t/p/original/{{top_rated_movies[i+j]['poster_path']}}"
+                                            class="img-fluid" alt="">
+                                    </div>
+                                </a>
+                                <div class="thumb-content">
+                                    <a href="/movies/{{ top_rated_movies[i+j]['movie_id']}}">
+                                        <div class="movie-title">
+                                            <h4 title="{{ top_rated_movies[i+j]['title'] }}">{{
+                                                top_rated_movies[i+j]['title']}}
+                                            </h4>
+                                        </div>
+                                    </a>
+                                    <!-- <i class="fas fa-star"></i> 5 -->
+                                </div>
+                                <!-- <div class="ribben">
+                                    <p>1</p>
+                                </div> -->
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Carousel controls -->
+            <a class="carousel-control-prev" href="#topRatedCarousel" data-slide="prev">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            <a class="carousel-control-next" href="#topRatedCarousel" data-slide="next">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+<!-- New Release-->
+<div class="container">
+    <div class="col-md-12 mx-auto">
+        <h4 class="section-text">New Release</h4>
+        <div id="newReleaseCarousel" class="carousel slide" data-ride="carousel" data-interval="0">
+            <!-- Carousel indicators -->
+            <!-- <ol class="carousel-indicators">
+                    <li data-target="#trendingCarousel" data-slide-to="0" class="active"></li>
+                    <li data-target="#trendingCarousel" data-slide-to="1"></li>
+                    <li data-target="#trendingCarousel" data-slide-to="2"></li>
+                </ol> -->
+            <!-- Wrapper for carousel items -->
+            <div class="carousel-inner">
+                {% for i in range(0,9,4) %}
+                <div class="carousel-item {{'active' if i == 0}}">
+                    <div class="row">
+                        {% for j in range(4) %}
+                        <div class="col-sm-3">
+                            <div class="thumb-wrapper">
+                                <a href="/movies/{{ new_release_movies[i+j]['movie_id'] }}">
+                                    <div class="img-box">
+                                        <img src="//image.tmdb.org/t/p/original/{{new_release_movies[i+j]['poster_path']}}"
+                                            class="img-fluid" alt="">
+                                    </div>
+                                </a>
+                                <div class="thumb-content">
+                                    <a href="/movies/{{ new_release_movies[i+j]['movie_id']}}">
+                                        <div class="movie-title">
+                                            <h4 title="{{ new_release_movies[i+j]['title'] }}">{{
+                                                new_release_movies[i+j]['title']}}
+                                            </h4>
+                                        </div>
+                                    </a>
+                                    <!-- <i class="fas fa-star"></i> 5 -->
+                                </div>
+                                <!-- <div class="ribben">
+                                    <p>1</p>
+                                </div> -->
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Carousel controls -->
+            <a class="carousel-control-prev" href="#newReleaseCarousel" data-slide="prev">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            <a class="carousel-control-next" href="#newReleaseCarousel" data-slide="next">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

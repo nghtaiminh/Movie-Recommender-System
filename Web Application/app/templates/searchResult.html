@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<meta id="search-data" data-search-terms="{{ search_terms }}" data-page="{{page}}">
+<div class="container">
+    <h4 class="section-text">Search Results</h4>
+    <p>Your search result for `{{ search_terms}}`</p>
+    <div class="container">
+        <div class="row">
+            {% for movie in results %}
+            <div class="col-12 col-sm-8 col-md-6 col-lg-3">
+                <div class="card">
+                    <a href="/movies/{{ movie.movie_id }}">
+                        <img class="card-img-top" src="//image.tmdb.org/t/p/original/{{movie['poster_path']}}"
+                            alt="{{ movie.movie_id }} poster">
+                    </a>
+                    <div class="card-body">
+                        <a href="/movies/{{ movie.movie_id }}">
+                            <h4 class="card-title">{{ movie.title }}</h4>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<nav>
+    <ul class="pagination">
+        <li class="page-item disabled"><a class="page-link" tabindex="-1">Previous</a></li>
+        <li class="page-item active"><a class="page-link">1</a></li>
+        <li class="page-item"><a class="page-link">2</a></li>
+        <li class="page-item"><a class="page-link">3</a></li>
+        <li class="page-item"><a class="page-link">4</a></li>
+        <li class="page-item"><a class="page-link">5</a></li>
+        <li class="page-item"><a class="page-link">Next</a></li>
+    </ul>
+</nav>
+<script>
+    var active_page = $("#search-data").attr("data-page");
+    $("ul.pagination li").removeClass('active');
+    $("ul.pagination li").eq(active_page).addClass('active');
+    $(document).on("click", "ul.pagination li a", function (e) {
+        var page = $(this).text();
+        var search_terms = $("#search-data").attr("data-search-terms");
+        console.log(page);
+        console.log(search_terms);
+        // $.ajax({
+        //     type: 'GET',
+        //     url: '/result',
+        //     data: {
+        //         page: page,
+        //         search_terms: search_terms
+        //     },
+        //     success: function (response) {
+
+        //     }
+        // });
+        window.location.href = '/result?page=' + page + '&search_terms=' + search_terms
+    });
+</script>
+
+{% endblock %}

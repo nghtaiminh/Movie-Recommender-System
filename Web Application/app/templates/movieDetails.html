@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Movie Content -->
+<meta id="movie-data" data-movieId="{{ movie_details[0]['movie_id'] }}">
+<div class="container">
+    <!-- Information Row -->
+    <div class="row movie-details">
+        <div class="col-md-4">
+            <img class="img-fluid poster-img" src="//image.tmdb.org/t/p/original/{{movie_details[0]['poster_path']}}"
+                alt="">
+        </div>
+
+        <div class="col-md-8">
+            <h3 class="my-3">{{ movie_details[0]['title'] }}</h3>
+            <p>{{ movie_details[0]['overview'] }}</p>
+            <h3 class="my-3">Movie Details</h3>
+            <ul>
+                <li>Genres:
+                    {% for genre in genres%}
+                    {{genre}},
+                    {% endfor %}
+                </li>
+                <!-- <li>Average Ratings</li> -->
+                <li>Release Date: {{ movie_details[0]['release_date'] }}</li>
+                <li>Links: <a href="https://www.imdb.com/title/{{ movie_details[0]['imdb_id'] }}/">imdb</a>
+                </li>
+            </ul>
+            <!-- Rating Submission -->
+            <!-- <div class="movie-widget">
+                <h4>Rate here</h4>
+                <div class="movie-rating" id="rating-123">
+                </div>
+            </div>
+            <i class="fas fa-trash-alt"></i> -->
+            <label for="input-7-md" class="control-label">Have you watched it?</label>
+            <input id="input-7-md" class="rating rating-loading" value="{{ rating }}" data-min="0" data-max="5"
+                data-step="0.5" data-size="md">
+
+
+        </div>
+    </div>
+    <!-- /.row -->
+</div>
+<!-- Similar Movies -->
+<div class="container" id="similar-movie-section">
+    <div class="col-md-12 mx-auto">
+        <h4 class="text">Similar Movies</h4>
+        <div id="similarMoviesCarousel" class="carousel slide" data-ride="carousel" data-interval="0">
+            <!-- Carousel indicators -->
+            <!-- <ol class="carousel-indicators">
+                    <li data-target="#trendingCarousel" data-slide-to="0" class="active"></li>
+                    <li data-target="#trendingCarousel" data-slide-to="1"></li>
+                    <li data-target="#trendingCarousel" data-slide-to="2"></li>
+                </ol> -->
+            <!-- Wrapper for carousel items -->
+            <div class="carousel-inner">
+                {% for i in range(0,9,4) %}
+                <div class="carousel-item {{'active' if i == 0}}">
+                    <div class="row">
+                        {% for j in range(4) %}
+                        <div class="col-sm-3">
+                            <div class="thumb-wrapper">
+                                <a href="/movies/{{ similar_movies[i+j]['movie_id']}}">
+                                    <div class="img-box">
+                                        <img src="//image.tmdb.org/t/p/original/{{similar_movies[i+j]['poster_path']}}"
+                                            class="img-fluid" alt="">
+                                    </div>
+                                </a>
+                                <div class="thumb-content">
+                                    <a href="/movies/{{ similar_movies[i+j]['movie_id']}}">
+                                        <div class="movie-title">
+                                            <h4 title="{{ similar_movies[i+j][2] }}">{{ similar_movies[i+j]['title']}}
+                                            </h4>
+                                        </div>
+                                        <!-- <i class="fas fa-star"></i> 5 -->
+                                    </a>
+                                </div>
+                                <!-- <div class="ribben">
+                                    <p>1</p>
+                                </div> -->
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Carousel controls -->
+            <a class="carousel-control-prev" href="#similarMoviesCarousel" data-slide="prev">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            <a class="carousel-control-next" href="#similarMoviesCarousel" data-slide="next">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+
+
+<!-- Star Rating JS -->
+<script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-star-rating@4.1.2/js/star-rating.min.js"
+    type="text/javascript"></script>
+
+<script type="text/javascript">
+    // initialize start form
+    $("#input-7-md").rating();
+    $("#input-7-md").on("rating:change", function (event, value) {
+        var movie_id = $("#movie-data").attr("data-movieId");
+        $.ajax({
+            type: 'POST',
+            url: '/movies/' + movie_id + '/rates/',
+            data: {
+                // movie_id: movie_id,
+                rating: value
+            },
+            dataType: "json",
+            success: function (response) {
+                console.log("Saved!")
+
+                if (response.redirect) {
+                    window.location.href = response.redirect;
+                }
+
+            }
+        })
+    });
+    
+    $('#input-7-md').on('rating:clear', function (event) {
+        var movie_id = $("#movie-data").attr("data-movieId");
+        $.ajax({
+            type: 'DELETE',
+            url: '/movies/' + movie_id + '/rates/delete/',
+            data: {
+
+            },
+            dataType: "json",
+            success: function (response) {
+                console.log("Delete Rating!")
+                if (response.redirect) {
+                    window.location.href = response.redirect;
+                }
+            },
+        });
+    });
+</script>
+
+{% endblock %}

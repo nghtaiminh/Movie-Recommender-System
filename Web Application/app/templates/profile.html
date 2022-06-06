@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h4 class="section-text">Rated Movies</h4>
+    <div class="container">
+        <div class="row">
+            {% for movie in rated_movies %}
+            <div class="col-12 col-sm-8 col-md-6 col-lg-3">
+                <div class="card">
+                    <a href="/movies/{{ movie.movie_id }}">
+                        <img class="card-img-top" src="//image.tmdb.org/t/p/original/{{movie['poster_path']}}"
+                            alt="{{ movie.movie_id }} poster">
+                    </a>
+                    <div class="card-body">
+                        <a href="/movies/{{ movie.movie_id }}">
+                            <h4 class="card-title">{{ movie.title }}</h4>
+                        </a>
+                        Your rating: <i class="fas fa-star"></i>{{ movie.rating }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
