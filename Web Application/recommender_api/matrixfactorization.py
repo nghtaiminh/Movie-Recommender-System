@@ -10,7 +10,6 @@ from sklearn.model_selection import train_test_split
 # Other
 import os
 import random
-import sys
 
 # Saving model
 import pickle

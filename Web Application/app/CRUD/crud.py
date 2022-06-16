@@ -1,25 +1,21 @@
+import os
 import json
-import psycopg2
-from flask import jsonify
-# from typing import str
-from psycopg2.extras import RealDictCursor
 import pandas as pd
 
-import os
-from dotenv import load_dotenv, find_dotenv
+import psycopg2
+from flask import jsonify
+from psycopg2.extras import RealDictCursor
 
+from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-DB_SERVER = "localhost"
-DB_NAME = "MovieRecommenderSystem"
-DB_USER = "postgres"
-DB_PASSWORD = "nghtaiminh2000"
+
+DB_SERVER = os.environ['DB_SERVER']
+DB_NAME = os.environ['DB_NAME']
+DB_USER = os.environ['DB_USER']
+DB_PASSWORD = os.environ['DB_PASSWORD']
 
 conn = psycopg2.connect(host=DB_SERVER, database=DB_NAME,
                         user=DB_USER, password=DB_PASSWORD)
-
-
-def close():
-    conn.close()
 
 
 def get_a_user(username: str, password: str):
@@ -50,34 +46,22 @@ def get_movies(ids):
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(query)
     result = cur.fetchall()
-    data = json.dumps(result, default=str)
-    return json.loads(data)
+    data = json.dumps(result, default=str, indent=2)
+    return json.loads(data)[:]
 
-def get_movies_test(ids):
-    try:
-        id_list = "','".join(ids)
-        query = "SELECT * FROM movie WHERE movie_id IN ('" + id_list + "');"
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute(query)
-        result = cur.fetchall()
-        data = json.load(json.dumps(result, default=str))
-        return jsonify(status=True, item=data)
-    except Exception:
-        return jsonify(status=False, data=None, message="Not Found")
 
-def get_top_rated_movie(user_id='-1'):
+def get_top_rated_movie():
     '''Get 12 movies with the most 5-star rated that user hasn't watched '''
-    query = """SELECT movie.movie_id, title, movie.poster_path, counter
+    query = """ SELECT movie.movie_id, title, movie.poster_path, counter
                 FROM movie
-                JOIN (SELECT movie_id, count(*) AS counter FROM rating 
-	                WHERE rating = 5 AND movie_id NOT IN (
-	  		        SELECT rating.movie_id 
-		  	        FROM movie, rating
-			        WHERE rating.user_id = %s AND movie.movie_id = rating.movie_id) 
-	            GROUP BY movie_id ORDER BY counter DESC LIMIT 12) t
+                JOIN (SELECT movie_id, COUNT(*) AS counter FROM rating 
+	                WHERE rating = 5
+	                GROUP BY movie_id 
+	                ORDER BY counter DESC 
+	                LIMIT 12) t
                 ON movie.movie_id = t.movie_id;"""
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute(query, (user_id,))
+    cur.execute(query)
     result = cur.fetchall()
     data = json.dumps(result, default=str)
     return json.loads(data)
@@ -100,14 +84,11 @@ def get_random_movies(user_id='-1'):
 
 
 def get_new_release_movies(user_id='-1'):
-    '''Get 12 newest release date movies in the database that user hasn't rated'''
-    query = """SELECT * 
+    '''Get 12 newest release date movies'''
+    query = """ SELECT * 
                 FROM movie
-                WHERE movie_id NOT IN (
-	                SELECT rating.movie_id 
-	                FROM movie, rating
-	                WHERE rating.user_id = %s AND movie.movie_id = rating.movie_id)
-                ORDER BY release_date DESC LIMIT 12;"""
+                ORDER BY release_date DESC 
+                LIMIT 12;"""
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(query, (user_id,))
     result = cur.fetchall()
@@ -156,10 +137,19 @@ def get_rated_movie_ids(user_id):
 
 def get_frequency_of_rating(user_id):
     '''Get the frequency for all rating of a user'''
-    query = """SELECT rating.rating, COUNT(rating) AS frequency 
-                FROM (SELECT * FROM rating WHERE rating.user_id = %s) AS rating
-                GROUP BY rating
-                ORDER BY rating;"""
+    query = """ WITH rating_freq AS 
+	            (SELECT 
+                    rating.rating, 
+                    COUNT(rating) AS frequency 
+	            FROM (SELECT * FROM rating WHERE rating.user_id = %s) AS rating
+	            GROUP BY rating
+	            ORDER BY rating
+                )
+                SELECT 
+                    generate_series as rating, 
+                    COALESCE(frequency, 0) AS frequency
+                FROM generate_series(0, 5, 0.5)
+                LEFT JOIN rating_freq ON generate_series = rating_freq.rating;"""
     cur = conn.cursor()
     cur.execute(query, (user_id,))
     result = cur.fetchall()
@@ -188,14 +178,19 @@ def delete_rating(user_id, movie_id):
 
 
 def get_num_of_movies_per_genre(user_id):
-    query = """SELECT genre.genre_name, COUNT(movie_genre.movie_id) AS counter
-                FROM genre  LEFT JOIN movie_genre
-                ON movie_genre.genre_id = genre.genre_id
-                WHERE movie_genre.movie_id IN (
-	                SELECT movie.movie_id 
-	                FROM rating, movie 
-	                WHERE rating.user_id = %s AND rating.movie_id = movie.movie_id)
-                GROUP BY genre.genre_id, genre.genre_name;"""
+    query = """ WITH genre_counter AS (
+	                SELECT genre.genre_name, COUNT(movie_genre.movie_id) AS counter
+	                FROM genre 
+	                LEFT JOIN movie_genre ON movie_genre.genre_id = genre.genre_id
+	                WHERE movie_genre.movie_id IN (
+		                SELECT movie.movie_id 
+		                FROM rating, movie 
+		                WHERE rating.user_id = %s AND rating.movie_id = movie.movie_id)
+	                GROUP BY genre.genre_id, genre.genre_name
+                )
+                SELECT genre.genre_name, COALESCE(counter, 0) AS counter
+                FROM genre
+                LEFT JOIN genre_counter ON genre_counter.genre_name = genre.genre_name;"""
     cur = conn.cursor()
     cur.execute(query, (user_id,))
     result = cur.fetchall()

@@ -1,4 +1,5 @@
 import os
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -9,11 +10,8 @@ from flask_session import  Session
 
 # from config import Config, BASE_DIR
 db = SQLAlchemy()
-DB_NAME = ""
 
 
 def create_app():
-
     app = Flask(__name__)
-
     return app

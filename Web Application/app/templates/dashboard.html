@@ -9,6 +9,7 @@
 <meta id="chart4-data" data="{{ chart4_data}}">
 <script type="text/javascript" src="{{ url_for('static', filename='js/dashboard.js')}}"></script>
 <script>
+
     // -------------------------------------------------
     // Prepare data for each chart
     var chart1_raw = $("#chart1-data").attr("data");
@@ -20,6 +21,7 @@
     chart2_json = JSON.parse(chart2_raw.replace(/'/g, '"'))
     chart3_json = JSON.parse(chart3_raw.replace(/'/g, '"'))
     chart4_json = JSON.parse(chart4_raw.replace(/'/g, '"'))
+
     // Add column names
     chart1_data = [['Rating', 'Frequency'],]
     chart2_data = [['Genre', 'Frequency'],]
@@ -30,18 +32,21 @@
     for (var key in chart1_json) {
         chart1_data.push([key, chart1_json[key]])
     }
+
     for (var key in chart2_json) {
         chart2_data.push([key, chart2_json[key]])
     }
+
     for (var key in chart3_json) {
         chart3_data.push([key, chart3_json[key]])
     }
+
     for (var key in chart4_json) {
         chart4_data.push([key, chart4_json[key]])
     }
-    console.log(chart4_data)
 
-
+    // -------------------------------------------------
+    // Pie chart 
     google.charts.load('current', { packages: ['corechart'] });
     google.charts.setOnLoadCallback(drawPieChart);
 
@@ -66,6 +71,8 @@
         chart.draw(pieChartData, options);
     }
 
+    // -------------------------------------------------
+    // Histogram
     google.charts.load('current', { packages: ['corechart', 'bar'] });
     google.charts.setOnLoadCallback(drawHistogram);
 
@@ -107,8 +114,9 @@
         );
         materialChart.draw(data, google.charts.Bar.convertOptions(materialOptions));
     }
-    // Number of rating per genre
 
+    // -------------------------------------------------
+    // Horizontal Bar Chart
     google.charts.load('current', { packages: ['corechart', 'bar'] });
     google.charts.setOnLoadCallback(drawHorizontalBar);
     function drawHorizontalBar() {
@@ -148,10 +156,12 @@
         );
         materialChart.draw(data, google.charts.Bar.convertOptions(materialOptions));
     }
-
-    // Average ratring per genre
+    
+    // -------------------------------------------------
+    // Bar Char - Average ratring per genre
     google.charts.load('current', { packages: ['corechart', 'bar'] });
     google.charts.setOnLoadCallback(drawAvgRatingPerGenreChart);
+
     function drawAvgRatingPerGenreChart() {
         var data = google.visualization.arrayToDataTable(chart4_data);
 
