@@ -1,9 +1,9 @@
 import pandas as pd
 
-from flask import request, Flask, render_template, redirect, url_for,  jsonify, session, flash, request, Blueprint
+from flask import request, Flask, render_template, redirect, url_for,  jsonify, session, flash, request
 import requests
 
-from CRUD.crud import *
+from crud import *
 from utils import *
 
 app = Flask(__name__)
@@ -12,7 +12,6 @@ app.secret_key = '12345'
 @app.route('/')
 def root():
     if 'user_id' not in session:
-        top_picks_or_random_movies = get_random_movies()
         n_rated_movies = 0
     else:
         n_rated_movies = get_number_of_rated_movies(session['user_id'])
@@ -20,13 +19,12 @@ def root():
         # 10 is the number of movies the user need to rate before being recommended
         if n_rated_movies >= 10:
             # Call recommendation API
-            rated_movie_ids = get_rated_movie_ids(session['user_id'])
             params = {'bundle': 'personalized_recommendation', 'user_id': session['user_id'], 'limit': 12}
             res = requests.get('http://127.0.0.1:5000/api/recommend', params=params).json()
-            top_picks_or_random_movies = res['data']
+            personalized_recommendations = res['data']
 
         else:
-            top_picks_or_random_movies = get_random_movies()
+            personalized_recommendations = get_random_movies()
 
     top_rated_movies = get_top_rated_movie()
     new_release_movies = get_new_release_movies()
@@ -34,7 +32,7 @@ def root():
 
     return render_template('home.html', top_rated_movies=top_rated_movies, 
                                         new_release_movies=new_release_movies, 
-                                        top_picks_or_random_movies=top_picks_or_random_movies, 
+                                        top_picks_or_random_movies=personalized_recommendations, 
                                         n_rated_movies=n_rated_movies)
 
 
@@ -45,6 +43,8 @@ def login():
     if request.method == 'POST':
         username = str(request.form.get('username')).strip()
         password = str(request.form.get('password')).strip()
+
+
         user = get_a_user(username, password)
 
         if user is None:
@@ -78,16 +78,18 @@ def register():
         password = str(request.form.get('password')).strip()
 
         # Check if the username is already registered
-        if get_a_user(username, password):
+        if get_username(username):
             flash(f'Username is already exists', 'warning')
         else:
             insert_user(username, password)
             user = get_a_user(username, password)
+
             session['logged_in'] = True
             session['username'] = user[1]
             session['user_id'] = user[0]
             flash(f'Your account has been created!')
             return redirect(url_for('root'))
+
     return render_template('register.html')
 
 

@@ -51,7 +51,7 @@ def split_train_test(dataframe):
 class MF:
     def __init__(self, X_train, y_train, num_epochs=NUM_EPOCHS, save_model_path=None):
         """
-            save_model_path (str): * do not include ".pickle"
+            save_model_path (str): * do not include ".pkl"
             * if save_model_path is not none, other parameters do not need any values
         """
         if save_model_path is None:
@@ -86,17 +86,17 @@ class MF:
 
     def save_model(self, save_path):
         """
-            savePath (str): * do not include ".pickle"
+            savePath (str): * do not include ".pkl"
         """
-        file_to_store = open(save_path + ".pickle", "wb")
+        file_to_store = open(save_path + ".pkl", "wb")
         pickle.dump(self, file_to_store)
         file_to_store.close()
 
     def load_model(save_path):
         """
-            savePath (str): * do not include ".pickle"
+            savePath (str): * do not include ".pkl"
         """
-        file_to_read = open(save_path + ".pickle", "rb")
+        file_to_read = open(save_path + ".pkl", "rb")
         mf = pickle.load(file_to_read)
         file_to_read.close()
         return mf

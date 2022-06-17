@@ -27,7 +27,7 @@ def loadTFIDF(savePath):
     """
         savePath (str): * do not include ".pickle"
     """
-    file_to_read = open(savePath + ".pickle", "rb")
+    file_to_read = open(savePath + ".pkl", "rb")
     tfidf = pickle.load(file_to_read)
     file_to_read.close()
     return tfidf
@@ -48,9 +48,9 @@ def to_json(recommend_list: list()):
 
 def loadTFIDF(savePath):
         """
-            savePath (str): * do not include ".pickle"
+            savePath (str): * do not include ".pkl"
         """
-        file_to_read = open(savePath + ".pickle", "rb")
+        file_to_read = open(savePath + ".pkl", "rb")
         tfidf = pickle.load(file_to_read)
         file_to_read.close()
         return tfidf    
@@ -147,7 +147,7 @@ class MOVIE_TFIDF:
 
     def saveTFIDF(self, savePath):
         """
-            savePath (str): * do not include ".pickle"
+            savePath (str): * do not include ".pkl"
         """
         file_to_store = open(savePath + ".pkl", "wb")
         pickle.dump(self, file_to_store, protocol=4)

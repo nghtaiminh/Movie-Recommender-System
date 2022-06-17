@@ -7,8 +7,7 @@ from tfidf import *
 
 
 app = Flask(__name__)
-app.secret_key = '11111'
-cors =  CORS(app)
+cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type' 
 
 
@@ -23,23 +22,29 @@ except Exception:
 def recommend():
     bundle = request.args.get('bundle')
     
-    if bundle == 'personalized_recommendation':
-        user_id = request.args.get('user_id')
-        limit = request.args.get('limit')
-        rated_movie_ids = get_rated_movie_ids(user_id)
-        recommended_ids = mf_model.recommend(int(user_id), rated_movie_ids, int(limit))
-        recommended_ids = recommended_ids['item_id'].apply(str).tolist()
-        result = get_movies(recommended_ids)
+    try: 
+        if bundle == 'personalized_recommendation':
+            user_id = request.args.get('user_id')
+            limit = request.args.get('limit')
+
+            rated_movie_ids = get_rated_movie_ids(user_id)
+
+            recommended_ids = mf_model.recommend(int(user_id), rated_movie_ids, int(limit))
+            recommended_ids = recommended_ids['item_id'].apply(str).tolist()
+            result = get_movies(recommended_ids)
 
 
-    elif bundle == 'similar_recommendation':
-        movie_id = request.args.get('movie_id')
-        limit = request.args.get('limit')
-        recommended_ids =  tfidf_model.recommend(target_id = int(movie_id), numRecommendation=12)
-        recommended_ids = map(str, recommended_ids)
-        result = get_movies(recommended_ids)
+        elif bundle == 'similar_recommendation':
+            movie_id = request.args.get('movie_id')
+            limit = request.args.get('limit')
 
-    return jsonify(success=True, statusCode=200, data=result, errors=None)
+            recommended_ids =  tfidf_model.recommend(target_id = int(movie_id), numRecommendation=12)
+            recommended_ids = map(str, recommended_ids)
+            result = get_movies(recommended_ids)
+    except Exception:
+        return jsonify(success=False, data=None, errors="Internal Server Error")
+
+    return jsonify(success=True, data=result, errors=None)
 
 
 

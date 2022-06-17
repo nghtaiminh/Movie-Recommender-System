@@ -26,6 +26,14 @@ def get_a_user(username: str, password: str):
     cur.close()
     return result
 
+def get_username(username: str):
+    query = """SELECT * FROM "user" WHERE username = %s;"""
+    cur = conn.cursor()
+    cur.execute(query, (username,))
+    result = cur.fetchone()
+    cur.close()
+    return result
+
 
 def get_rating_from_user(user_id, movie_id):
     '''Get rating of a user for a movie'''
