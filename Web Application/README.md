@@ -1,40 +1,38 @@
-# Movie Recommendation System
+## Setup
 
+There are two component to be noticed:
 
+- Recommendation API
+- Web server
 
-## Installation
+### Settings
 
-To run locally:
-
-### Environment + Packages Installation
-
-- install python 3
-- install virtualenv
-- virtualenv -p python3 venv
-- source venv/bin/activate
-- pip install -r requirements.txt
+```bash
+python3 -m pip install -r requirements.txt
+```
 
 ### Database Installation
 
 - Create a database with PostgreSQL
 - Restore the database with `backup.sql` file.
-- Go to `Web Application/app/CRUD.py` and change the database configuration.
 
-### Model Preparation
+### Train and save model offline
 
 - Go to `recommender_module` folder, run notebook `matrixfactorization.ipynb` and `TF_IDF.ipynb`
 
-### Run the project
+### Run 
 
-- cd app/
-- python app.py
+1. Start the recommendation API server:
 
-Then go to:  http://127.0.0.1:3000/
+```bash
+cd recommender_api && python api.py
+``` 
+The server is run on 127.0.0.1:3000
 
+2. Start the web server:
 
+```bash
+cd app && python routes.py
+``` 
 
-The recommendation algorithms is not built from scratch,
-
-Ref 
-- TMDB API
-
+The server is run on 127.0.0.1:5000

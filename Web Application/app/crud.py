@@ -18,21 +18,15 @@ conn = psycopg2.connect(host=DB_SERVER, database=DB_NAME,
                         user=DB_USER, password=DB_PASSWORD)
 
 
-def get_a_user(username: str, password: str):
-    query = """SELECT * FROM "user" WHERE username = %s AND password = %s;"""
-    cur = conn.cursor()
-    cur.execute(query, (username, password))
-    result = cur.fetchone()
-    cur.close()
-    return result
-
-def get_username(username: str):
+def get_a_user(username: str):
     query = """SELECT * FROM "user" WHERE username = %s;"""
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(query, (username,))
     result = cur.fetchone()
     cur.close()
-    return result
+    data = json.dumps(result, sort_keys=True, default=str)
+    return json.loads(data)
+
 
 
 def get_rating_from_user(user_id, movie_id):

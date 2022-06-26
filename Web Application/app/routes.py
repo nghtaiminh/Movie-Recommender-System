@@ -1,6 +1,7 @@
 import pandas as pd
 
 from flask import request, Flask, render_template, redirect, url_for,  jsonify, session, flash, request
+from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 
 from crud import *
@@ -13,6 +14,7 @@ app.secret_key = '12345'
 def root():
     if 'user_id' not in session:
         n_rated_movies = 0
+        personalized_recommendations = get_random_movies()
     else:
         n_rated_movies = get_number_of_rated_movies(session['user_id'])
 
@@ -45,21 +47,21 @@ def login():
         password = str(request.form.get('password')).strip()
 
 
-        user = get_a_user(username, password)
+        user = get_a_user(username)
+        print(user)
 
-        if user is None:
-            error = 'Incorrect username or password!'
-
-        if error == '':
-            session.clear()
-            session['logged_in'] = True
-            session['username'] = user[1]
-            session['user_id'] = user[0]
-            return redirect(url_for('root'))
-
-        flash(error, 'warning')
-    else:
-        return render_template('login.html')
+        if user:
+            if check_password_hash(user['password'], password):
+                session.clear()
+                session['logged_in'] = True
+                session['username'] = user['username']
+                session['user_id'] = user['user_id']
+                flash('You were logged in', category='success')
+                return redirect(url_for('root'))
+            else:
+                error = "Incorrect password!"
+        else:
+            error = "Username not found!"
 
     return render_template('login.html', error=error)
 
@@ -78,12 +80,15 @@ def register():
         password = str(request.form.get('password')).strip()
 
         # Check if the username is already registered
-        if get_username(username):
-            flash(f'Username is already exists', 'warning')
+        if get_a_user(username):
+            flash('Username is already exists!', 'warning')
         else:
-            insert_user(username, password)
-            user = get_a_user(username, password)
-
+            # Hash the password
+            hashed_password = generate_password_hash(password, method='sha256')
+            # Insert the user into the database
+            insert_user(username, hashed_password)
+            # Store the session
+            user = get_a_user(username)
             session['logged_in'] = True
             session['username'] = user[1]
             session['user_id'] = user[0]
