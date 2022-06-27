@@ -18,7 +18,7 @@ python3 -m pip install -r requirements.txt
 
 ### Train and save model offline
 
-- Go to `recommender_module` folder, run notebook `matrixfactorization.ipynb` and `TF_IDF.ipynb`
+- Go to `recommender_api` folder, run notebook `matrixfactorization.ipynb` and `TF_IDF.ipynb`
 
 ### Run 
 
