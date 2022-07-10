@@ -30,14 +30,6 @@ My future goal is to research more into recommender system design and experiment
   <img src="img/search.png" width="280" />
 </p>
 
-## Features
-
-- Basic Authentication
-- Personalized Recommendation with Kernal Matrix Factorization method
-- Recommend movies with similar plot with TF-IDF method
-- Visualization for the user to have a better insight about his/her rating
-- Simple searching function allowing users to search movies
-
 ## Further improvement
 
 My future goal is to research more into recommender system design and experiment with SOTA recommendation methods
