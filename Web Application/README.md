@@ -15,11 +15,6 @@ python3 -m pip install -r requirements.txt
 
 - Create a database with PostgreSQL
 - Restore the database with `backup.sql` file.
-
-### Train and save model offline
-
-- Go to `recommender_module` folder, run notebook `matrixfactorization.ipynb` and `TF_IDF.ipynb`
-
 ### Run 
 
 1. Start the recommendation API server:
