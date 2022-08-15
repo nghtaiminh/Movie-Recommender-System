@@ -3,12 +3,12 @@ from flask_cors import CORS
 
 from crud import *
 from matrixfactorization import MF
-from tfidf import * 
+from tfidf import *
 
 
 app = Flask(__name__)
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type' 
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 #  Load ML models
@@ -18,35 +18,35 @@ try:
 except Exception:
     print("Can't load the models")
 
+
 @app.route("/api/recommend", methods=['GET'])
 def recommend():
     bundle = request.args.get('bundle')
-    
-    try: 
+
+    try:
         if bundle == 'personalized_recommendation':
             user_id = request.args.get('user_id')
             limit = request.args.get('limit')
 
             rated_movie_ids = get_rated_movie_ids(user_id)
 
-            recommended_ids = mf_model.recommend(int(user_id), rated_movie_ids, int(limit))
+            recommended_ids = mf_model.recommend(
+                int(user_id), rated_movie_ids, int(limit))
             recommended_ids = recommended_ids['item_id'].apply(str).tolist()
             result = get_movies(recommended_ids)
-
 
         elif bundle == 'similar_recommendation':
             movie_id = request.args.get('movie_id')
             limit = request.args.get('limit')
 
-            recommended_ids =  tfidf_model.recommend(target_id = int(movie_id), numRecommendation=12)
+            recommended_ids = tfidf_model.recommend(
+                target_id=int(movie_id), numRecommendation=12)
             recommended_ids = map(str, recommended_ids)
             result = get_movies(recommended_ids)
     except Exception:
         return jsonify(success=False, data=None, errors="Internal Server Error")
 
     return jsonify(success=True, data=result, errors=None)
-
-
 
 
 @app.route("/api/update_model")
@@ -56,7 +56,7 @@ def update_model():
     rating = request.args.get('rating')
 
     user_item = pd.DataFrame(
-                data={'user_id': [int(user_id)], 'item_id': [int(movie_id)]})
+        data={'user_id': [int(user_id)], 'item_id': [int(movie_id)]})
 
     rating = pd.Series(data=[float(rating)])
     try:
@@ -68,9 +68,6 @@ def update_model():
     except Exception:
         return jsonify(success=False, message="Can't update the model")
 
-    
 
-
-
-if __name__ ==  '__main__':
+if __name__ == '__main__':
     app.run(host="127.0.0.1", port="5000", debug=True)

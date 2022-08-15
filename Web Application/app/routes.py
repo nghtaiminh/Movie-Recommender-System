@@ -10,6 +10,7 @@ from utils import *
 app = Flask(__name__)
 app.secret_key = '12345'
 
+
 @app.route('/')
 def root():
     if 'user_id' not in session:
@@ -21,8 +22,10 @@ def root():
         # 10 is the number of movies the user need to rate before being recommended
         if n_rated_movies >= 10:
             # Call recommendation API
-            params = {'bundle': 'personalized_recommendation', 'user_id': session['user_id'], 'limit': 12}
-            res = requests.get('http://127.0.0.1:5000/api/recommend', params=params).json()
+            params = {'bundle': 'personalized_recommendation',
+                      'user_id': session['user_id'], 'limit': 12}
+            res = requests.get(
+                'http://127.0.0.1:5000/api/recommend', params=params).json()
             personalized_recommendations = res['data']
 
         else:
@@ -31,11 +34,10 @@ def root():
     top_rated_movies = get_top_rated_movie()
     new_release_movies = get_new_release_movies()
 
-
-    return render_template('home.html', top_rated_movies=top_rated_movies, 
-                                        new_release_movies=new_release_movies, 
-                                        top_picks_or_random_movies=personalized_recommendations, 
-                                        n_rated_movies=n_rated_movies)
+    return render_template('home.html', top_rated_movies=top_rated_movies,
+                           new_release_movies=new_release_movies,
+                           top_picks_or_random_movies=personalized_recommendations,
+                           n_rated_movies=n_rated_movies)
 
 
 @app.route("/login/", methods=['GET', 'POST'])
@@ -45,7 +47,6 @@ def login():
     if request.method == 'POST':
         username = str(request.form.get('username')).strip()
         password = str(request.form.get('password')).strip()
-
 
         user = get_a_user(username)
         print(user)
@@ -117,8 +118,8 @@ def result():
     page = request.args.get('page')
     results = search_movie(search_terms, int(page)-1)
     return render_template('searchResult.html', results=results,
-                                                search_terms=search_terms, 
-                                                page=page)
+                           search_terms=search_terms,
+                           page=page)
 
 
 @app.route('/movies/<movie_id>')
@@ -134,14 +135,16 @@ def movies(movie_id):
             rating = check_rating[0]['rating']
 
     # Send request to recommendation api
-    params = {'bundle': 'similar_recommendation', 'movie_id': movie_id, 'limit': 12}
-    res = requests.get('http://127.0.0.1:5000/api/recommend', params=params).json()
+    params = {'bundle': 'similar_recommendation',
+              'movie_id': movie_id, 'limit': 12}
+    res = requests.get('http://127.0.0.1:5000/api/recommend',
+                       params=params).json()
     similar_movies = res['data']
 
-    return render_template('movieDetails.html', movie_details=movie_details, 
-                                                similar_movies=similar_movies, 
-                                                rating=rating, 
-                                                genres=genres)
+    return render_template('movieDetails.html', movie_details=movie_details,
+                           similar_movies=similar_movies,
+                           rating=rating,
+                           genres=genres)
 
 
 @app.route('/movies/<movie_id>/rates/', methods=['POST', 'GET'])
@@ -153,18 +156,22 @@ def rates(movie_id):
         if request.method == 'POST':
             rating = request.form.get('rating')
             insert_or_update_rating(session['user_id'], movie_id, rating)
-            
+
             # Send request to update the model with new data
-            params = {'movie_id': movie_id, 'user_id': session['user_id'], 'rating': rating}
-            requests.get('http://127.0.0.1:5000/api/update_model', params=params).json()
-            
+            params = {'movie_id': movie_id,
+                      'user_id': session['user_id'], 'rating': rating}
+            requests.get('http://127.0.0.1:5000/api/update_model',
+                         params=params).json()
+
             movie_details = get_movie(movie_id)
-            params = {'bundle': 'similar_recommendation', 'movie_id': movie_id, 'limit': 12}
-            res = requests.get('http://127.0.0.1:5000/api/recommend', params=params).json()
+            params = {'bundle': 'similar_recommendation',
+                      'movie_id': movie_id, 'limit': 12}
+            res = requests.get(
+                'http://127.0.0.1:5000/api/recommend', params=params).json()
             similar_movies = res['data']
-            
-            return render_template('movieDetails.html', movie_details=movie_details, 
-                                                        similar_movies=similar_movies)
+
+            return render_template('movieDetails.html', movie_details=movie_details,
+                                   similar_movies=similar_movies)
 
 
 @app.route('/movies/<movie_id>/rates/delete/', methods=['DELETE'])
@@ -178,17 +185,21 @@ def rates_delete(movie_id):
 
 @app.route('/dashboard/', methods=['GET'])
 def dashboard():
-    chart1_data = frequency_of_rating(get_frequency_of_rating(session['user_id']))
-    chart2_data = n_rating_per_genre(get_num_of_movies_per_genre(session['user_id']))
-    chart3_data = decade_distribution(get_decade_distribution_of_rated_movies(session['user_id']))
-    chart4_data = avg_rating_per_genre(get_avg_rating_each_genre(session['user_id']))
+    chart1_data = frequency_of_rating(
+        get_frequency_of_rating(session['user_id']))
+    chart2_data = n_rating_per_genre(
+        get_num_of_movies_per_genre(session['user_id']))
+    chart3_data = decade_distribution(
+        get_decade_distribution_of_rated_movies(session['user_id']))
+    chart4_data = avg_rating_per_genre(
+        get_avg_rating_each_genre(session['user_id']))
     n_rated_movies = get_number_of_rated_movies(session['user_id'])
 
-    return render_template('dashboard.html',chart1_data=chart1_data, 
-                                            chart2_data=chart2_data, 
-                                            chart3_data=chart3_data,  
-                                            chart4_data=chart4_data, 
-                                            n_rated_movies=n_rated_movies)
+    return render_template('dashboard.html', chart1_data=chart1_data,
+                           chart2_data=chart2_data,
+                           chart3_data=chart3_data,
+                           chart4_data=chart4_data,
+                           n_rated_movies=n_rated_movies)
 
 
 if __name__ == '__main__':

@@ -6,12 +6,11 @@
 
 <div class="container">
     <div class="col-md-12 mx-auto">
-        {% if n_rated_movies < 10 %} 
-            <h4 class="section-text">Rate More</h4>
+        {% if n_rated_movies < 10 %} <h4 class="section-text">Rate More</h4>
             <p>Rate 10 movies to enable personalized recommendations, you have rate {{n_rated_movies}}</p>
-        {% else %}
+            {% else %}
             <h4 class="section-text">Recommended for you</h4>
-        {% endif %}
+            {% endif %}
             <!-- <h4 class="section-text">Top picks for you</h4> -->
             <div id="toppickCarousel" class="carousel slide" data-ride="carousel" data-interval="0">
                 <!-- Carousel indicators -->

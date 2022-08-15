@@ -17,12 +17,14 @@ DB_PASSWORD = os.environ['DB_PASSWORD']
 conn = psycopg2.connect(host=DB_SERVER, database=DB_NAME,
                         user=DB_USER, password=DB_PASSWORD)
 
+
 def get_rated_movie_ids(user_id):
     '''Get a list of movie IDs a user has rated'''
     query = """SELECT movie.movie_id FROM movie, rating WHERE rating.user_id = {user_id} AND movie.movie_id = rating.movie_id;""".format(
         user_id=user_id)
     df = pd.read_sql(query, conn)
     return df['movie_id'].apply(int).tolist()
+
 
 def get_movies(ids):
     id_list = "','".join(ids)

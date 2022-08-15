@@ -28,7 +28,6 @@ def get_a_user(username: str):
     return json.loads(data)
 
 
-
 def get_rating_from_user(user_id, movie_id):
     '''Get rating of a user for a movie'''
     query = """SELECT rating
